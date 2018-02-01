@@ -12,7 +12,6 @@ function init(){
     canvas.height = blockSize*20;
 
     function drawBlock(){
-        console.log('drawBasic');
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, blockSize, blockSize);
         block = ctx.getImageData(0, 0, blockSize, blockSize);
@@ -90,83 +89,102 @@ function init(){
         this.x = x;
         this.y = y;
 
-        this.draw = function (){
+        this.draw = function (posX,posY){
             // console.log('leftGun');
 
             // activeShape.push(ctx.putImageData(block,this.x,this.y);
-            ctx.putImageData(block,this.x,this.y);
+            ctx.putImageData(block,posX,posY);
             // ctx.putImageData(block,this.x+blockSize,this.y);
             // ctx.putImageData(block,this.x+blockSize*2,this.y);
             // ctx.putImageData(block,this.x+blockSize*2,this.y+blockSize);
         },
 
         this.update = function(){
-            taken = {};
-            let free = true;
 
             void ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            for(let i = 0,j = finishedShapes.length; i < j; i++){
-                if(this.y == finishedShapes[i].y){
-                    console.log('taken');
-                    free = false;
-                }else{
-                    console.log('free');
+            let positionTaken;
+            let taken = {};
+
+
+                // DRAW EXISTING SHAPES
+                for(let i = 0, j = finishedShapes.length; i < j; i++){
+                    this.draw(finishedShapes[i].x, finishedShapes[i].y);
                 }
-            }
 
-            if(this.y + blockSize >= canvas.height){
-                this.y = this.y;
-                console.log("NEED NEW SHAPE");
-                cancelAnimationFrame(myAnimationRequest);
+                // CHECK IF CURRENT POSITION IS FREE
+                for(let i = 0, j = finishedShapes.length; i < j; i++){
+                    if(this.x == finishedShapes[i].x && this.y == finishedShapes[i].y - blockSize){
+                        console.log('TAKEN');
+                        positionTaken = true;
+                    }else{
+                        console.log('FREE');
+                        positionTaken = false;
+                    }
+                }
 
-                taken.x = this.x;
-                taken.y = this.y;
-                finishedShapes.push(taken);
-                console.log(finishedShapes);
+                // BOTTOM LINE
+                if(this.y + blockSize >= canvas.height){
+                    this.y = this.y;
 
+                    // ADD POSITION TO TAKEN OBJECT
+                    taken.x = this.x;
+                    taken.y = this.y;
+                    finishedShapes.push(taken);
 
-            }else if(this.y >= canvas.height && !free){
-                this.y = 0;
-            }
-            else{
-                this.y += blockSize;
-            }
-            this.draw();
+                    console.log('BOTTOM');
+                    clearTimeout(myAnimationInterval);
+                    cancelAnimationFrame(myAnimationRequest);
+
+                }else if(!positionTaken){
+                    this.y += blockSize;
+                    console.log('MOVING');
+
+                }else if(positionTaken){
+                    // ADD POSITION TO TAKEN OBJECT
+                    taken.x = this.x;
+                    taken.y = this.y;
+                    finishedShapes.push(taken);
+                    console.log("STOPED");
+                    clearTimeout(myAnimationInterval);
+                    cancelAnimationFrame(myAnimationRequest);
+                }
+
+            this.draw(this.x, this.y);
         }
     };
 
 
-
+document.addEventListener('click',function(){
+    console.log('shapesArr');
+    activeShape = [];
+    console.log(activeShape);
+    console.log('finishedShapes ' + finishedShapes);
+    activeShape.push(new leftGun(blockSize*5,0));
+    animate();
+})
 
     var myAnimationRequest;
+    var myAnimationInterval;
 
     // SHAPES PLACEHOLDER ARRAY
     var shapesArr = [];
     var activeShape = [];
     var finishedShapes = [];
 
-    shapesArr.push(new leftGun(100,0));
-
-
-
-    // shapesArr[0].update();
-
 
     function animate(){
-        setTimeout(
+
+        myAnimationInterval = setTimeout(
             function(){
                 myAnimationRequest = requestAnimationFrame(animate);
             },
         200);
 
         // LOOP FOR UPDATING POSITION
-        for(var i = 0; i < shapesArr.length; i++){
-            shapesArr[i].update();
+        for(var i = 0; i < activeShape.length; i++){
+            activeShape[i].update();
         };
     };
-
-    // animate();
-
 
 }
