@@ -7,7 +7,7 @@ body, html{
     width: 100%;
     height: 100%;
     background-color: orange;
-    padding: 50px;
+    padding: 20px;
 }
 
 .container{
@@ -17,4 +17,6 @@ body, html{
 
 canvas{
     background-color: green;
+    display: block;
+    margin: 0 auto;
 }
