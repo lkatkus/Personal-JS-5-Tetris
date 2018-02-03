@@ -16,7 +16,7 @@ function init(){
     var takenRight;
 
     // SETTING STARTING CANVAS SIZE
-    canvas.width = blockSize*24;
+    canvas.width = blockSize*12;
     canvas.height = blockSize*20;
 
     function drawBlock(){
@@ -39,7 +39,12 @@ function init(){
             direction = 'left';
         }else if(event.key == 'ArrowUp'){
             console.log('rotate');
-
+            console.log(shapeRotation);
+            if(shapeRotation == 4){
+                shapeRotation = 1;
+            }else{
+                shapeRotation++;
+            }
         }else if(event.key == 'ArrowDown'){
             console.log('down');
         }else if(event.key == 0){
@@ -48,40 +53,118 @@ function init(){
         }
     });
 
-
-
-    function leftGun(x,y){
+    function leftGun(x,y,rotation){
+        shape = [];
 
         let moveBottom = true;
         let moveLeft = true;
         let moveRight = true;
+
         direction = null;
 
         this.x = x;
         this.y = y;
 
         this.assemble = function(posX,posY){
-            if(shapeType == 1){
-                shape.push({x:posX, y:posY});
-                shape.push({x:posX + blockSize, y:posY});
-                shape.push({x:posX + blockSize * 2, y:posY});
-                shape.push({x:posX + blockSize * 2, y:posY + blockSize});
-            }else if(shapeType == 2){
-                shape.push({x:posX, y:posY});
-                shape.push({x:posX, y:posY + blockSize});
-                shape.push({x:posX, y:posY + blockSize * 2});
-                shape.push({x:posX - blockSize, y:posY + blockSize * 2});
-            }else if(shapeType == 3){
-                shape.push({x:posX, y:posY});
-                shape.push({x:posX, y:posY + blockSize});
-                shape.push({x:posX + blockSize, y:posY});
-                shape.push({x:posX + blockSize * 2, y:posY});
-            }else if(shapeType == 4){
-                shape.push({x:posX, y:posY});
-                shape.push({x:posX + blockSize, y:posY});
-                shape.push({x:posX, y:posY  + blockSize});
-                shape.push({x:posX, y:posY  + blockSize * 2});
+            // LEFT GUN
+            if(shapeType == 1 && shapeRotation == 1){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX - blockSize * 2, y:posY});
             }
+            else if(shapeType == 1 && shapeRotation == 2){
+                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY - blockSize * 2});
+            }
+            else if(shapeType == 1 && shapeRotation == 3){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});
+            }
+            else if(shapeType == 1 && shapeRotation == 4){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+            }
+
+            // RIGHT GUN
+            else if(shapeType == 2 && shapeRotation == 1){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX - blockSize * 2, y:posY});
+            }
+            else if(shapeType == 2 && shapeRotation == 2){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY - blockSize * 2});
+            }
+            else if(shapeType == 2 && shapeRotation == 3){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});   shape.push({x:posX, y:posY + blockSize});
+            }
+            else if(shapeType == 2 && shapeRotation == 4){
+                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+            }
+
+
+            // RIGHT KINK
+            else if(shapeType == 3 && shapeRotation == 1){
+                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY - blockSize});
+            }
+            else if(shapeType == 3 && shapeRotation == 2){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY + blockSize});
+            }
+            else if(shapeType == 3 && shapeRotation == 3){
+                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY - blockSize});
+            }
+            else if(shapeType == 3 && shapeRotation == 4){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY + blockSize});
+            }
+
+            // LEFT KINK
+            else if(shapeType == 4 && shapeRotation == 1){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX - blockSize, y:posY - blockSize});
+            }
+            else if(shapeType == 4 && shapeRotation == 2){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY - blockSize});
+            }
+            else if(shapeType == 4 && shapeRotation == 3){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX - blockSize, y:posY - blockSize});
+            }
+            else if(shapeType == 4 && shapeRotation == 4){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY - blockSize});
+            }
+
+            // PYRAMID
+            else if(shapeType == 5 && shapeRotation == 1){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});
+            }
+            else if(shapeType == 5 && shapeRotation == 2){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY + blockSize});
+            }
+            else if(shapeType == 5 && shapeRotation == 3){
+                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX - blockSize, y:posY});
+            }
+            else if(shapeType == 5 && shapeRotation == 4){
+                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY - blockSize});
+            }
+
+            // BOX
+            else if(shapeType == 6 && shapeRotation == 1){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+            }
+            else if(shapeType == 6 && shapeRotation == 2){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+            }
+            else if(shapeType == 6 && shapeRotation == 3){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+            }
+            else if(shapeType == 6 && shapeRotation == 4){
+                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+            }
+
+            // STICK
+            else if(shapeType == 7 && shapeRotation == 1){
+                shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});
+            }
+            else if(shapeType == 7 && shapeRotation == 2){
+                shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+            }
+            else if(shapeType == 7 && shapeRotation == 3){
+                shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});
+            }
+            else if(shapeType == 7 && shapeRotation == 4){
+                shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+            }
+
             this.draw();
         };
 
@@ -162,7 +245,6 @@ function init(){
                 }else if(direction == 'right' && moveRight){
                     this.x += blockSize;
                 }
-
                 this.y += blockSize;
             }else{
                 clearTimeout(myAnimationInterval);
@@ -180,16 +262,11 @@ function init(){
         };
     };
 
-    function createNewShape(){
-        activeShape = [];
-        activeShape.push(new leftGun(blockSize*5,0));
-        animate();
-    };
-
-    // TESTING START
+    // TESTING START WITH MOUSE
     document.addEventListener('click',function(){
         activeShape = [];
-        shapeType = Math.floor(Math.random()*4)+1;
+        shapeType = Math.floor(Math.random()*7)+1;
+        shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new leftGun(blockSize*5,0));
         animate();
     });
@@ -199,7 +276,10 @@ function init(){
 
     // SHAPES PLACEHOLDER ARRAY
     var shape = [];
-    var shapeType = 1; /* FROM 1 TO 4 */
+    var shapeType = 1; /* FROM 1 TO 7 */
+    var shapeRotation = 1; /* FROM 1 TO 4 */
+
+    var activeShape;
     var finishedShapes = [];
 
     // MAIN ANIMATION FUNCTION
@@ -208,7 +288,7 @@ function init(){
             function(){
                 myAnimationRequest = requestAnimationFrame(animate);
             },
-        100);
+            200);
 
         // LOOP FOR UPDATING POSITION
         for(var i = 0; i < activeShape.length; i++){
