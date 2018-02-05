@@ -276,6 +276,10 @@ function init(){
 
     // START GAME
     function startGame(){
+
+        // REMOVE START BUTTON
+        btnStart.classList.add('d-none');
+
         activeShape = [];
         shapeType = Math.floor(Math.random()*7)+1;
         shapeRotation = Math.floor(Math.random()*4)+1;
