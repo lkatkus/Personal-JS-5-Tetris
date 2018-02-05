@@ -27,6 +27,12 @@ function init(){
     }
     drawBlock();
 
+    // START AND RESET BUTTON SELECTORS
+    var btnStart = document.querySelector('#btn-start');
+        btnStart.addEventListener('click',function(){
+        startGame('start');
+    });
+
     // ADD CONTROLS
     document.addEventListener('keydown',function(event){
         if(event.key == 'ArrowRight'){
@@ -250,6 +256,7 @@ function init(){
                 clearTimeout(myAnimationInterval);
                 cancelAnimationFrame(myAnimationRequest);
                 finishedShapes.push(shape);
+                console.log('END');
             }
 
             // RESETING MOVEMENT FOR NEXT UPDATE
@@ -259,17 +266,32 @@ function init(){
 
             shape = [];
             this.assemble(this.x,this.y);
+
+            // ADDING NEW SHAPE AFTER PLACING CURRENT
+            if(!moveBottom){
+                newShape();
+            }
         };
     };
 
-    // TESTING START WITH MOUSE
-    document.addEventListener('click',function(){
+    // START GAME
+    function startGame(){
         activeShape = [];
         shapeType = Math.floor(Math.random()*7)+1;
         shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new leftGun(blockSize*5,0));
         animate();
-    });
+    };
+
+    // ADDING NEW SHAPE AFTER PLACING CURRENT
+    function newShape(){
+        shape = [];
+        activeShape = [];
+        shapeType = Math.floor(Math.random()*7)+1;
+        shapeRotation = Math.floor(Math.random()*4)+1;
+        activeShape.push(new leftGun(blockSize*5,0));
+        animate();
+    }
 
     var myAnimationRequest;
     var myAnimationInterval;
