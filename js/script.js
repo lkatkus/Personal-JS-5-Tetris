@@ -196,6 +196,31 @@ function init(){
                 };
             };
 
+            // CHECK CONTAINER LEFT
+
+            if(moveBottom){
+                for(let i = 0; i < shape.length; i++){
+                    if(shape[i].x == 0){
+                        moveLeft = false
+                        break;
+                    }else{
+                        moveLeft = true;
+                    };
+                };
+            }
+
+            if(moveBottom){
+                for(let i = 0; i < shape.length; i++){
+                    if(shape[i].x == canvas.width - blockSize){
+                        moveRight = false
+                        break;
+                    }else{
+                        moveRight = true;
+                    };
+                };
+            }
+
+
             // CHECK BOTTOM
             if(moveBottom && finishedShapes.length > 0){
                 for(let i = 0; i < shape.length; i++){
