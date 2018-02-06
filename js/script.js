@@ -313,7 +313,13 @@ function init(){
     function newShape(){
         shape = [];
         activeShape = [];
-        shapeType = Math.floor(Math.random()*7)+1;
+        // shapeType = Math.floor(Math.random()*7)+1;
+
+        // TESTING
+        shapeType = 7;
+
+
+
         shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new addShape(blockSize*5,0));
         animate();
@@ -327,7 +333,9 @@ function init(){
         document.getElementById('title').classList.add('d-none');
 
         activeShape = [];
-        shapeType = Math.floor(Math.random()*7)+1;
+        // shapeType = Math.floor(Math.random()*7)+1;
+        // TESTING
+        shapeType = 7;
         shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new addShape(blockSize*5,0));
         animate();
@@ -365,12 +373,17 @@ function init(){
 
     // REMOVE LINE
     function removeLine(deleteLineY){
-        console.log('deleteLineY ' +deleteLineY);
+        console.log('deleteLineY ' + deleteLineY);
         console.log(finishedShapes);
         for(let i = 0; i < finishedShapes.length; i++){
             for(let j = 0; j < finishedShapes[i].length; j++){
                 if(finishedShapes[i][j].y == deleteLineY){
+                    // finishedShapes[i].splice(j,1);
+                    console.log(finishedShapes[i][j]);
+                    console.log('i '+ i + ' j ' + j);
                     finishedShapes[i].splice(j,1);
+
+                    // NOT DELETING ALL THE ELEMENTS IN THE LINE
                 }
             }
         }
