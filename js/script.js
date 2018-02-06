@@ -365,7 +365,7 @@ function init(){
 
     // REMOVE LINE
     function removeLine(deleteLineY){
-        console.log(deleteLineY);
+        console.log('deleteLineY ' +deleteLineY);
         console.log(finishedShapes);
         for(let i = 0; i < finishedShapes.length; i++){
             for(let j = 0; j < finishedShapes[i].length; j++){
