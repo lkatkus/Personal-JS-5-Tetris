@@ -21,6 +21,13 @@ canvas{
     margin: 0 auto;
 }
 
+#title{
+    color: #a8a8a8;
+    margin: 10px;
+    font-size: 40px;
+    margin-top: 0;
+}
+
 /*BUTTONS*/
 .btn-container{
     /*POSITIONING*/

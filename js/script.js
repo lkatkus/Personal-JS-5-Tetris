@@ -15,9 +15,23 @@ function init(){
     var takenLeft;
     var takenRight;
 
+    // ANIMATION CONTROL VARIABLES
+    var myAnimationRequest;
+    var myAnimationInterval;
+
+    // SHAPES PLACEHOLDER ARRAY
+    var shape = [];
+    var shapeType = 1; /* FROM 1 TO 7 */
+    var shapeRotation = 1; /* FROM 1 TO 4 */
+
+    var activeShape;
+    var finishedShapes = [];
+
     // SETTING STARTING CANVAS SIZE
-    canvas.width = blockSize*12;
-    canvas.height = blockSize*20;
+    var lineWidth = 12;
+
+    canvas.width = blockSize*lineWidth;
+    canvas.height = blockSize*15;
 
     function drawBlock(){
         ctx.fillStyle = 'black';
@@ -36,16 +50,12 @@ function init(){
     // ADD CONTROLS
     document.addEventListener('keydown',function(event){
         if(event.key == 'ArrowRight'){
-            console.log('right');
             direction = null;
             direction = 'right';
         }else if(event.key == 'ArrowLeft'){
-            console.log('left');
             direction = null;
             direction = 'left';
         }else if(event.key == 'ArrowUp'){
-            console.log('rotate');
-            console.log(shapeRotation);
             if(shapeRotation == 4){
                 shapeRotation = 1;
             }else{
@@ -59,7 +69,7 @@ function init(){
         }
     });
 
-    function leftGun(x,y,rotation){
+    function addShape(x,y,rotation){
         shape = [];
 
         let moveBottom = true;
@@ -197,7 +207,6 @@ function init(){
             };
 
             // CHECK CONTAINER LEFT
-
             if(moveBottom){
                 for(let i = 0; i < shape.length; i++){
                     if(shape[i].x == 0){
@@ -209,6 +218,7 @@ function init(){
                 };
             }
 
+            // CHECK CONTAINER RIGHT
             if(moveBottom){
                 for(let i = 0; i < shape.length; i++){
                     if(shape[i].x == canvas.width - blockSize){
@@ -220,8 +230,7 @@ function init(){
                 };
             }
 
-
-            // CHECK BOTTOM
+            // CHECK CONTAINER BOTTOM
             if(moveBottom && finishedShapes.length > 0){
                 for(let i = 0; i < shape.length; i++){
                     for(let x = 0; x < finishedShapes.length; x++){
@@ -270,6 +279,7 @@ function init(){
                 }
             }
 
+            // MOVEMENT
             if(moveBottom){
                 if(direction == 'left' && moveLeft){
                     this.x -= blockSize;
@@ -281,7 +291,7 @@ function init(){
                 clearTimeout(myAnimationInterval);
                 cancelAnimationFrame(myAnimationRequest);
                 finishedShapes.push(shape);
-                console.log('END');
+                checkFinishedLine();
             }
 
             // RESETING MOVEMENT FOR NEXT UPDATE
@@ -299,39 +309,29 @@ function init(){
         };
     };
 
-    // START GAME
-    function startGame(){
-
-        // REMOVE START BUTTON
-        btnStart.classList.add('d-none');
-
-        activeShape = [];
-        shapeType = Math.floor(Math.random()*7)+1;
-        shapeRotation = Math.floor(Math.random()*4)+1;
-        activeShape.push(new leftGun(blockSize*5,0));
-        animate();
-    };
-
     // ADDING NEW SHAPE AFTER PLACING CURRENT
     function newShape(){
         shape = [];
         activeShape = [];
         shapeType = Math.floor(Math.random()*7)+1;
         shapeRotation = Math.floor(Math.random()*4)+1;
-        activeShape.push(new leftGun(blockSize*5,0));
+        activeShape.push(new addShape(blockSize*5,0));
         animate();
     }
 
-    var myAnimationRequest;
-    var myAnimationInterval;
+    // START GAME
+    function startGame(){
 
-    // SHAPES PLACEHOLDER ARRAY
-    var shape = [];
-    var shapeType = 1; /* FROM 1 TO 7 */
-    var shapeRotation = 1; /* FROM 1 TO 4 */
+        // REMOVE START BUTTON AND TITLE
+        btnStart.classList.add('d-none');
+        document.getElementById('title').classList.add('d-none');
 
-    var activeShape;
-    var finishedShapes = [];
+        activeShape = [];
+        shapeType = Math.floor(Math.random()*7)+1;
+        shapeRotation = Math.floor(Math.random()*4)+1;
+        activeShape.push(new addShape(blockSize*5,0));
+        animate();
+    };
 
     // MAIN ANIMATION FUNCTION
     function animate(){
@@ -346,4 +346,34 @@ function init(){
             activeShape[i].update();
         };
     };
+
+    // CHECK FULL LINE
+    function checkFinishedLine(){
+        let taken = 0;
+        for(let i = 0; i < finishedShapes.length; i++){
+            for(let j = 0; j < finishedShapes[i].length; j++){
+                if(finishedShapes[i][j].y == canvas.height - blockSize){
+                    taken++;
+                    if(taken == lineWidth){
+                        console.log('full bottom line');
+                        removeLine(finishedShapes[i][j].y);
+                    }
+                }
+            }
+        }
+    }
+
+    // REMOVE LINE
+    function removeLine(deleteLineY){
+        console.log(deleteLineY);
+        console.log(finishedShapes);
+        for(let i = 0; i < finishedShapes.length; i++){
+            for(let j = 0; j < finishedShapes[i].length; j++){
+                if(finishedShapes[i][j].y == deleteLineY){
+                    finishedShapes[i].splice(j,1);
+                }
+            }
+        }
+    }
+
 };
