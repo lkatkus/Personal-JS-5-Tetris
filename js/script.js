@@ -31,7 +31,7 @@ function init(){
     var lineWidth = 12;
 
     canvas.width = blockSize*lineWidth;
-    canvas.height = blockSize*15;
+    canvas.height = blockSize*20;
 
     function drawBlock(){
         ctx.fillStyle = 'black';
@@ -312,10 +312,10 @@ function init(){
     function newShape(){
         shape = [];
         activeShape = [];
-        // shapeType = Math.floor(Math.random()*7)+1;
+        shapeType = Math.floor(Math.random()*7)+1;
 
         // TESTING
-        shapeType = 7;
+        // shapeType = 6;
 
         shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new addShape(blockSize*5,0));
@@ -330,10 +330,11 @@ function init(){
         document.getElementById('title').classList.add('d-none');
 
         activeShape = [];
-        // shapeType = Math.floor(Math.random()*7)+1;
+        shapeType = Math.floor(Math.random()*7)+1;
 
         // TESTING
-        shapeType = 7;
+        // shapeType = 6;
+
         shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new addShape(blockSize*5,0));
         animate();
@@ -369,11 +370,25 @@ function init(){
         for(let i = 0; i < finishedShapes.length-1; i++){
             if(finishedShapes[i].y == finishedShapes[i+1].y && i+1<=finishedShapes.length-1){
                 takenOnLine++;
-                if(takenOnLine == 11){
+                if(takenOnLine == lineWidth-1){
                     console.log('FULL LINE AT ' + finishedShapes[i].y);
                     takenOnLine = 0;
-                    console.log(i + ' ' + lineWidth);
-                    finishedShapes.splice(i+1-lineWidth,lineWidth);
+                    let removedLineY = finishedShapes[i].y;
+
+                    // REMOVE FILLED LINE
+                    finishedShapes.splice(i+2-lineWidth,lineWidth);
+
+                    console.log(removedLineY + ' ' + canvas.height);
+
+                    // MOVE ALL BLOCKS ABOVE THE REMOVED LINE DOWN
+                    for(let j = 0; j < finishedShapes.length; j++){
+                        if(finishedShapes[j].y < removedLineY){
+                            finishedShapes[j].y = finishedShapes[j].y + blockSize;
+                        };
+                    }
+
+                    // RERUN FUNCTION IF MORE THEN ONE LINE FILLED
+                    checkFinishedLine();
                 }
             }else{
                 console.log('NO FULL LINES');
