@@ -199,7 +199,7 @@ function init(){
             // CANVAS BOTTOM
             for(let i = 0; i < shape.length; i++){
                 if(shape[i].y >= canvas.height - blockSize){
-                    moveBottom = false
+                    moveBottom = false;
                     break;
                 }else{
                     moveBottom = true;
@@ -210,7 +210,7 @@ function init(){
             if(moveBottom){
                 for(let i = 0; i < shape.length; i++){
                     if(shape[i].x == 0){
-                        moveLeft = false
+                        moveLeft = false;
                         break;
                     }else{
                         moveLeft = true;
@@ -222,7 +222,7 @@ function init(){
             if(moveBottom){
                 for(let i = 0; i < shape.length; i++){
                     if(shape[i].x == canvas.width - blockSize){
-                        moveRight = false
+                        moveRight = false;
                         break;
                     }else{
                         moveRight = true;
@@ -230,15 +230,13 @@ function init(){
                 };
             }
 
-            // CHECK CONTAINER BOTTOM
+            // CHECK BOTTOM
             if(moveBottom && finishedShapes.length > 0){
                 for(let i = 0; i < shape.length; i++){
-                    for(let x = 0; x < finishedShapes.length; x++){
-                        for(let j = 0; j < finishedShapes[x].length; j++){
-                            if(shape[i].y + blockSize == finishedShapes[x][j].y && shape[i].x == finishedShapes[x][j].x){
-                                moveBottom = false;
-                                break;
-                            };
+                    for(let j = 0; j < finishedShapes.length; j++){
+                        if(shape[i].y + blockSize == finishedShapes[j].y && shape[i].x == finishedShapes[j].x){
+                            moveBottom = false;
+                            break;
                         };
                     };
                 };
@@ -247,12 +245,10 @@ function init(){
             // CHECK LEFT
             if(moveBottom && finishedShapes.length > 0){
                 for(let i = 0; i < shape.length; i++){
-                    for(let x = 0; x < finishedShapes.length; x++){
-                        for(let j = 0; j < finishedShapes[x].length; j++){
-                            if(shape[i].x - blockSize == finishedShapes[x][j].x && shape[i].y == finishedShapes[x][j].y){
-                                moveLeft = false;
-                                break;
-                            };
+                    for(let j = 0; j < finishedShapes.length; j++){
+                        if(shape[i].x - blockSize == finishedShapes[j].x && shape[i].y == finishedShapes[j].y){
+                            moveLeft = false;
+                            break;
                         };
                     };
                 };
@@ -261,12 +257,10 @@ function init(){
             // CHECK RIGHT
             if(moveBottom && finishedShapes.length > 0){
                 for(let i = 0; i < shape.length; i++){
-                    for(let x = 0; x < finishedShapes.length; x++){
-                        for(let j = 0; j < finishedShapes[x].length; j++){
-                            if(shape[i].x + blockSize == finishedShapes[x][j].x && shape[i].y == finishedShapes[x][j].y){
-                                moveRight = false;
-                                break;
-                            };
+                    for(let j = 0; j < finishedShapes.length; j++){
+                        if(shape[i].x + blockSize == finishedShapes[j].x && shape[i].y == finishedShapes[j].y){
+                            moveRight = false;
+                            break;
                         };
                     };
                 };
@@ -274,9 +268,7 @@ function init(){
 
             // REDRAW FINISHED SHAPES
             for(let i = 0; i < finishedShapes.length; i++){
-                for(let j = 0; j < finishedShapes[i].length; j++){
-                    ctx.putImageData(block,finishedShapes[i][j].x, finishedShapes[i][j].y);
-                }
+                ctx.putImageData(block,finishedShapes[i].x, finishedShapes[i].y);
             }
 
             // MOVEMENT
@@ -290,8 +282,15 @@ function init(){
             }else{
                 clearTimeout(myAnimationInterval);
                 cancelAnimationFrame(myAnimationRequest);
-                finishedShapes.push(shape);
-                checkFinishedLine();
+
+                // ADD FILLED BLOCKS TO FINISHED SHAPES ARRAY
+                for(let i = 0; i < shape.length; i++){
+                    finishedShapes.push(shape[i]);
+                }
+
+                if(finishedShapes.length > 10){
+                    checkFinishedLine();
+                }
             }
 
             // RESETING MOVEMENT FOR NEXT UPDATE
@@ -318,8 +317,6 @@ function init(){
         // TESTING
         shapeType = 7;
 
-
-
         shapeRotation = Math.floor(Math.random()*4)+1;
         activeShape.push(new addShape(blockSize*5,0));
         animate();
@@ -334,6 +331,7 @@ function init(){
 
         activeShape = [];
         // shapeType = Math.floor(Math.random()*7)+1;
+
         // TESTING
         shapeType = 7;
         shapeRotation = Math.floor(Math.random()*4)+1;
@@ -357,34 +355,29 @@ function init(){
 
     // CHECK FULL LINE
     function checkFinishedLine(){
-        let taken = 0;
-        for(let i = 0; i < finishedShapes.length; i++){
-            for(let j = 0; j < finishedShapes[i].length; j++){
-                if(finishedShapes[i][j].y == canvas.height - blockSize){
-                    taken++;
-                    if(taken == lineWidth){
-                        console.log('full bottom line');
-                        removeLine(finishedShapes[i][j].y);
-                    }
-                }
-            }
-        }
-    }
 
-    // REMOVE LINE
-    function removeLine(deleteLineY){
-        console.log('deleteLineY ' + deleteLineY);
-        console.log(finishedShapes);
-        for(let i = 0; i < finishedShapes.length; i++){
-            for(let j = 0; j < finishedShapes[i].length; j++){
-                if(finishedShapes[i][j].y == deleteLineY){
-                    // finishedShapes[i].splice(j,1);
-                    console.log(finishedShapes[i][j]);
-                    console.log('i '+ i + ' j ' + j);
-                    finishedShapes[i].splice(j,1);
+        // SORT ELEMENTS FROM LOWEST TO HIGHEST BY Y
+        var sorted = finishedShapes.sort(function sorter(a, b) {
+            return b.y > a.y ? 1
+            : b.y < a.y ? -1
+            : 0;
+        });
 
-                    // NOT DELETING ALL THE ELEMENTS IN THE LINE
+        let takenOnLine = 0;
+
+        // CHECK OBJECT AMOUNT ON ONE LINE
+        for(let i = 0; i < finishedShapes.length-1; i++){
+            if(finishedShapes[i].y == finishedShapes[i+1].y && i+1<=finishedShapes.length-1){
+                takenOnLine++;
+                if(takenOnLine == 11){
+                    console.log('FULL LINE AT ' + finishedShapes[i].y);
+                    takenOnLine = 0;
+                    console.log(i + ' ' + lineWidth);
+                    finishedShapes.splice(i+1-lineWidth,lineWidth);
                 }
+            }else{
+                console.log('NO FULL LINES');
+                takenOnLine = 0;
             }
         }
     }
