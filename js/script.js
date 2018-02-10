@@ -22,9 +22,11 @@ function init(){
     var myAnimationInterval;
 
     // SHAPES PLACEHOLDER ARRAY
-    var shape = [];
+    var shape = []; /* SHAPE DATA PLACEHOLDER */
     var shapeType = 1; /* FROM 1 TO 7 */
     var shapeRotation = 1; /* FROM 1 TO 4 */
+    var shapeColorArr = ['white']; /* NEED FIXING. ADD COLOR SAVER TO FINISHED ARRAY */
+    var shapeColor;
     var activeShape; /* FOR TRACKING ACTIVE SHAPE */
     var finishedShapes = []; /* FOR STORING PLACED BLOCK POSITION */
 
@@ -38,25 +40,10 @@ function init(){
     canvas.width = blockSize*lineWidth;
     canvas.height = blockSize*20;
 
-    // BLOCK DRAWING FUNCTION
-    function drawBlock(){
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, blockSize, blockSize);
-
-        ctx.strokeStyle = 'grey';
-        ctx.strokeRect(0, 0, blockSize, blockSize);
-
-        block = ctx.getImageData(0, 0, blockSize, blockSize);
-        void ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // DRAWING SINGLE BLOCK
-    drawBlock();
-
     // START AND RESET BUTTON SELECTORS
     var btnStart = document.querySelector('#btn-start');
         btnStart.addEventListener('click',function(){
-        startGame('start');
+        startGame();
     });
 
     // FOR DISPLAYING SCORE
@@ -93,11 +80,9 @@ function init(){
 
         activeShape = [];
         shapeType = Math.floor(Math.random()*7)+1;
-
-        // TESTING
-        // shapeType = 6;
-
+        shapeColor  = shapeColorArr[Math.floor(Math.random()*shapeColorArr.length)];
         shapeRotation = Math.floor(Math.random()*4)+1;
+
         activeShape.push(new addShape(blockSize*5,0));
         animate();
     };
@@ -108,13 +93,75 @@ function init(){
             function(){
                 myAnimationRequest = requestAnimationFrame(animate);
             },
-            200);
+            200); /* LOWER INTERVAL = FASTER GAME */
 
         // LOOP FOR UPDATING POSITION
         for(var i = 0; i < activeShape.length; i++){
             activeShape[i].update();
         };
     };
+
+    // ADDING NEW SHAPE AFTER PLACING CURRENT
+    function newShape(){
+        shape = [];
+        activeShape = [];
+        shapeType = Math.floor(Math.random()*7)+1;
+        shapeRotation = Math.floor(Math.random()*4)+1;
+        shapeColor  = shapeColorArr[Math.floor(Math.random()*shapeColorArr.length)];
+
+        activeShape.push(new addShape(blockSize*5,0));
+        animate();
+
+        console.log(finishedShapes);
+    }
+
+    // CHECK IF ANY LINE IS FULL
+    function checkFinishedLine(){
+
+        // SORTING BLOCKS IN FINISHED SHAPES BASED ON THEIR Y TO HELP CHECKING IF ANY LINE IS FILLED
+        var sorted = finishedShapes.sort(function sorter(a, b) {
+            return b.y > a.y ? 1
+            : b.y < a.y ? -1
+            : 0;
+        });
+
+        let takenOnLine = 0; /* PLACEHOLDER FOR CHECKING AMOUNT OF FILLED BLOCKS ON A SINGLE LINE. IF EQUAL TO LINEWIDTH, THE REMOVE */
+
+        // CHECK OBJECT AMOUNT ON ONE LINE
+        for(let i = 0; i < finishedShapes.length-1; i++){
+            if(finishedShapes[i].y == finishedShapes[i+1].y && i+1<=finishedShapes.length-1){
+                takenOnLine++;
+                if(takenOnLine == lineWidth-1){
+                    console.log('FULL LINE AT ' + finishedShapes[i].y);
+
+                    score = Math.floor((score + lineWidth * 10) * scoreMultiply);
+                    scoreMultiply = scoreMultiply * 1.1;
+
+                    takenOnLine = 0;
+                    let removedLineY = finishedShapes[i].y;
+
+                    // REMOVE FILLED LINE
+                    finishedShapes.splice(i+2-lineWidth,lineWidth);
+
+                    // MOVE ALL BLOCKS ABOVE THE REMOVED LINE DOWN
+                    for(let j = 0; j < finishedShapes.length; j++){
+                        if(finishedShapes[j].y < removedLineY){
+                            finishedShapes[j].y = finishedShapes[j].y + blockSize;
+                        };
+                    }
+
+                    // RERUN FUNCTION IF MORE THEN ONE LINE FILLED
+                    checkFinishedLine();
+
+                    scoreDisplay.innerHTML = score; /* ADD SCORE TO DISPLAY */
+                }
+            }else{
+                console.log('NO FULL LINES');
+                takenOnLine = 0;
+                scoreMultiply = 1; /* RESETING MULTIPLY */
+            }
+        }
+    }
 
     // SHAPE OBJECT
     function addShape(x,y,rotation){
@@ -129,104 +176,121 @@ function init(){
         this.x = x;
         this.y = y;
 
+        // BLOCK DRAWING FUNCTION
+        function drawBlock(shapeColor){
+            // FILL COLOR
+            ctx.fillStyle = shapeColor;
+            ctx.fillRect(0, 0, blockSize, blockSize);
+
+            // BORDER
+            ctx.strokeStyle = 'grey';
+            ctx.strokeRect(0, 0, blockSize, blockSize);
+
+            block = ctx.getImageData(0, 0, blockSize, blockSize);
+            void ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // DRAW SINGLE BLOCK
+        drawBlock(shapeColor);
+
         this.assemble = function(posX,posY){
             // LEFT GUN
             if(shapeType == 1 && shapeRotation == 1){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX - blockSize * 2, y:posY});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX - blockSize * 2, y:posY, color:shapeColor});
             }
             else if(shapeType == 1 && shapeRotation == 2){
-                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY - blockSize * 2});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX, y:posY - blockSize * 2, color:shapeColor});
             }
             else if(shapeType == 1 && shapeRotation == 3){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize * 2, y:posY, color:shapeColor});
             }
             else if(shapeType == 1 && shapeRotation == 4){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX, y:posY + blockSize * 2, color:shapeColor});
             }
 
             // RIGHT GUN
             else if(shapeType == 2 && shapeRotation == 1){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX - blockSize * 2, y:posY});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX - blockSize * 2, y:posY, color:shapeColor});
             }
             else if(shapeType == 2 && shapeRotation == 2){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY - blockSize * 2});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX, y:posY - blockSize * 2, color:shapeColor});
             }
             else if(shapeType == 2 && shapeRotation == 3){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});   shape.push({x:posX, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize * 2, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});
             }
             else if(shapeType == 2 && shapeRotation == 4){
-                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX, y:posY + blockSize * 2, color:shapeColor});
             }
 
 
             // RIGHT KINK
             else if(shapeType == 3 && shapeRotation == 1){
-                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY - blockSize, color:shapeColor});
             }
             else if(shapeType == 3 && shapeRotation == 2){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY + blockSize, color:shapeColor});
             }
             else if(shapeType == 3 && shapeRotation == 3){
-                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY - blockSize, color:shapeColor});
             }
             else if(shapeType == 3 && shapeRotation == 4){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY + blockSize, color:shapeColor});
             }
 
             // LEFT KINK
             else if(shapeType == 4 && shapeRotation == 1){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX - blockSize, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX - blockSize, y:posY - blockSize, color:shapeColor});
             }
             else if(shapeType == 4 && shapeRotation == 2){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY - blockSize, color:shapeColor});
             }
             else if(shapeType == 4 && shapeRotation == 3){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX - blockSize, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX - blockSize, y:posY - blockSize, color:shapeColor});
             }
             else if(shapeType == 4 && shapeRotation == 4){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY - blockSize, color:shapeColor});
             }
 
             // PYRAMID
             else if(shapeType == 5 && shapeRotation == 1){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});
             }
             else if(shapeType == 5 && shapeRotation == 2){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});
             }
             else if(shapeType == 5 && shapeRotation == 3){
-                shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX - blockSize, y:posY});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});
             }
             else if(shapeType == 5 && shapeRotation == 4){
-                shape.push({x:posX, y:posY});   shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY - blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX, y:posY - blockSize, color:shapeColor});
             }
 
             // BOX
             else if(shapeType == 6 && shapeRotation == 1){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY + blockSize, color:shapeColor});
             }
             else if(shapeType == 6 && shapeRotation == 2){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY + blockSize, color:shapeColor});
             }
             else if(shapeType == 6 && shapeRotation == 3){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY + blockSize, color:shapeColor});
             }
             else if(shapeType == 6 && shapeRotation == 4){
-                shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX + blockSize, y:posY + blockSize});
+                shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX + blockSize, y:posY + blockSize, color:shapeColor});
             }
 
             // STICK
             else if(shapeType == 7 && shapeRotation == 1){
-                shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});
+                shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize * 2, y:posY, color:shapeColor});
             }
             else if(shapeType == 7 && shapeRotation == 2){
-                shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+                shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX, y:posY + blockSize * 2, color:shapeColor});
             }
             else if(shapeType == 7 && shapeRotation == 3){
-                shape.push({x:posX - blockSize, y:posY});   shape.push({x:posX, y:posY});   shape.push({x:posX + blockSize, y:posY});   shape.push({x:posX + blockSize * 2, y:posY});
+                shape.push({x:posX - blockSize, y:posY, color:shapeColor});   shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX + blockSize, y:posY, color:shapeColor});   shape.push({x:posX + blockSize * 2, y:posY, color:shapeColor});
             }
             else if(shapeType == 7 && shapeRotation == 4){
-                shape.push({x:posX, y:posY - blockSize});   shape.push({x:posX, y:posY});   shape.push({x:posX, y:posY + blockSize});   shape.push({x:posX, y:posY + blockSize * 2});
+                shape.push({x:posX, y:posY - blockSize, color:shapeColor});   shape.push({x:posX, y:posY, color:shapeColor});   shape.push({x:posX, y:posY + blockSize, color:shapeColor});   shape.push({x:posX, y:posY + blockSize * 2, color:shapeColor});
             }
 
             this.draw();
@@ -317,6 +381,7 @@ function init(){
             // REDRAW FINISHED SHAPES
             for(let i = 0; i < finishedShapes.length; i++){
                 ctx.putImageData(block,finishedShapes[i].x, finishedShapes[i].y);
+                /* ADD FUNCTION FOR REDRAWING SHAPES WITH SAVED COLORS */
             }
 
             // MOVEMENT
@@ -355,67 +420,4 @@ function init(){
             }
         };
     };
-
-    // ADDING NEW SHAPE AFTER PLACING CURRENT
-    function newShape(){
-        shape = [];
-        activeShape = [];
-        shapeType = Math.floor(Math.random()*7)+1;
-
-        // TESTING
-        // shapeType = 6;
-
-        shapeRotation = Math.floor(Math.random()*4)+1;
-        activeShape.push(new addShape(blockSize*5,0));
-        animate();
-    }
-
-    // CHECK FULL LINE
-    function checkFinishedLine(){
-
-        // SORT ELEMENTS FROM LOWEST TO HIGHEST BY Y
-        var sorted = finishedShapes.sort(function sorter(a, b) {
-            return b.y > a.y ? 1
-            : b.y < a.y ? -1
-            : 0;
-        });
-
-        let takenOnLine = 0; /* PLACEHOLDER FOR CHECKING AMOUNT OF FILLED BLOCKS ON A SINGLE LINE. IF EQUAL TO LINEWIDTH, THE REMOVE */
-
-        // CHECK OBJECT AMOUNT ON ONE LINE
-        for(let i = 0; i < finishedShapes.length-1; i++){
-            if(finishedShapes[i].y == finishedShapes[i+1].y && i+1<=finishedShapes.length-1){
-                takenOnLine++;
-                if(takenOnLine == lineWidth-1){
-                    console.log('FULL LINE AT ' + finishedShapes[i].y);
-
-                    score = Math.floor((score + lineWidth * 10) * scoreMultiply);
-                    scoreMultiply = scoreMultiply * 1.1;
-
-                    takenOnLine = 0;
-                    let removedLineY = finishedShapes[i].y;
-
-                    // REMOVE FILLED LINE
-                    finishedShapes.splice(i+2-lineWidth,lineWidth);
-
-                    // MOVE ALL BLOCKS ABOVE THE REMOVED LINE DOWN
-                    for(let j = 0; j < finishedShapes.length; j++){
-                        if(finishedShapes[j].y < removedLineY){
-                            finishedShapes[j].y = finishedShapes[j].y + blockSize;
-                        };
-                    }
-
-                    // RERUN FUNCTION IF MORE THEN ONE LINE FILLED
-                    checkFinishedLine();
-
-                    scoreDisplay.innerHTML = score; /* ADD SCORE TO DISPLAY */
-                }
-            }else{
-                console.log('NO FULL LINES');
-                takenOnLine = 0;
-                scoreMultiply = 1; /* RESETING MULTIPLY */
-            }
-        }
-    }
-
 };
