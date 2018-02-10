@@ -3,6 +3,8 @@ function init(){
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
 
+    var canvasSize = canvas.getBoundingClientRect();
+
     // BLOCK PARAMETERS FOR BUILDING SHAPES
     var block;
     var blockSize = 20;
@@ -23,9 +25,12 @@ function init(){
     var shape = [];
     var shapeType = 1; /* FROM 1 TO 7 */
     var shapeRotation = 1; /* FROM 1 TO 4 */
+    var activeShape; /* FOR TRACKING ACTIVE SHAPE */
+    var finishedShapes = []; /* FOR STORING PLACED BLOCK POSITION */
 
-    var activeShape;
-    var finishedShapes = [];
+    // FOR SCORE KEEPING
+    var score = 0;
+    var scoreMultiply = 1;
 
     // SETTING STARTING CANVAS SIZE
     var lineWidth = 12;
@@ -33,12 +38,19 @@ function init(){
     canvas.width = blockSize*lineWidth;
     canvas.height = blockSize*20;
 
+    // BLOCK DRAWING FUNCTION
     function drawBlock(){
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, blockSize, blockSize);
+
+        ctx.strokeStyle = 'grey';
+        ctx.strokeRect(0, 0, blockSize, blockSize);
+
         block = ctx.getImageData(0, 0, blockSize, blockSize);
         void ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+
+    // DRAWING SINGLE BLOCK
     drawBlock();
 
     // START AND RESET BUTTON SELECTORS
@@ -46,6 +58,9 @@ function init(){
         btnStart.addEventListener('click',function(){
         startGame('start');
     });
+
+    // FOR DISPLAYING SCORE
+    var scoreDisplay = document.querySelector('#scoreDisplay');
 
     // ADD CONTROLS
     document.addEventListener('keydown',function(event){
@@ -69,6 +84,39 @@ function init(){
         }
     });
 
+    // START GAME
+    function startGame(){
+
+        // REMOVE START BUTTON AND TITLE
+        btnStart.classList.add('d-none');
+        document.getElementById('title').classList.add('d-none');
+
+        activeShape = [];
+        shapeType = Math.floor(Math.random()*7)+1;
+
+        // TESTING
+        // shapeType = 6;
+
+        shapeRotation = Math.floor(Math.random()*4)+1;
+        activeShape.push(new addShape(blockSize*5,0));
+        animate();
+    };
+
+    // MAIN ANIMATION FUNCTION
+    function animate(){
+        myAnimationInterval = setTimeout(
+            function(){
+                myAnimationRequest = requestAnimationFrame(animate);
+            },
+            200);
+
+        // LOOP FOR UPDATING POSITION
+        for(var i = 0; i < activeShape.length; i++){
+            activeShape[i].update();
+        };
+    };
+
+    // SHAPE OBJECT
     function addShape(x,y,rotation){
         shape = [];
 
@@ -322,38 +370,6 @@ function init(){
         animate();
     }
 
-    // START GAME
-    function startGame(){
-
-        // REMOVE START BUTTON AND TITLE
-        btnStart.classList.add('d-none');
-        document.getElementById('title').classList.add('d-none');
-
-        activeShape = [];
-        shapeType = Math.floor(Math.random()*7)+1;
-
-        // TESTING
-        // shapeType = 6;
-
-        shapeRotation = Math.floor(Math.random()*4)+1;
-        activeShape.push(new addShape(blockSize*5,0));
-        animate();
-    };
-
-    // MAIN ANIMATION FUNCTION
-    function animate(){
-        myAnimationInterval = setTimeout(
-            function(){
-                myAnimationRequest = requestAnimationFrame(animate);
-            },
-            200);
-
-        // LOOP FOR UPDATING POSITION
-        for(var i = 0; i < activeShape.length; i++){
-            activeShape[i].update();
-        };
-    };
-
     // CHECK FULL LINE
     function checkFinishedLine(){
 
@@ -364,7 +380,7 @@ function init(){
             : 0;
         });
 
-        let takenOnLine = 0;
+        let takenOnLine = 0; /* PLACEHOLDER FOR CHECKING AMOUNT OF FILLED BLOCKS ON A SINGLE LINE. IF EQUAL TO LINEWIDTH, THE REMOVE */
 
         // CHECK OBJECT AMOUNT ON ONE LINE
         for(let i = 0; i < finishedShapes.length-1; i++){
@@ -372,13 +388,15 @@ function init(){
                 takenOnLine++;
                 if(takenOnLine == lineWidth-1){
                     console.log('FULL LINE AT ' + finishedShapes[i].y);
+
+                    score = Math.floor((score + lineWidth * 10) * scoreMultiply);
+                    scoreMultiply = scoreMultiply * 1.1;
+
                     takenOnLine = 0;
                     let removedLineY = finishedShapes[i].y;
 
                     // REMOVE FILLED LINE
                     finishedShapes.splice(i+2-lineWidth,lineWidth);
-
-                    console.log(removedLineY + ' ' + canvas.height);
 
                     // MOVE ALL BLOCKS ABOVE THE REMOVED LINE DOWN
                     for(let j = 0; j < finishedShapes.length; j++){
@@ -389,10 +407,13 @@ function init(){
 
                     // RERUN FUNCTION IF MORE THEN ONE LINE FILLED
                     checkFinishedLine();
+
+                    scoreDisplay.innerHTML = score; /* ADD SCORE TO DISPLAY */
                 }
             }else{
                 console.log('NO FULL LINES');
                 takenOnLine = 0;
+                scoreMultiply = 1; /* RESETING MULTIPLY */
             }
         }
     }

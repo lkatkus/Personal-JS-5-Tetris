@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
+
 *{
     box-sizing: border-box;
+    font-family: 'Share Tech Mono', monospace;
 }
 
 body, html{
@@ -12,40 +15,59 @@ body, html{
 
 .container{
     width: 100%;
+    height: 100%;
     position: relative;
+}
+
+.canvasContainer{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+
 }
 
 canvas{
     background-color: #d3d3d3;
-    display: block;
-    margin: 0 auto;
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0px 0px 80px 20px rgba(0,0,0,0.2);
+    -moz-box-shadow: inset 0px 0px 80px 20px rgba(0,0,0,0.2);
+    box-shadow: inset 0px 0px 80px 20px rgba(0,0,0,0.2);
 }
 
 #title{
     color: #a8a8a8;
     margin: 10px;
-    font-size: 40px;
-    margin-top: 0;
+    font-size: 30px;
+}
+
+.score{
+    color: #d3d3d3;
+    font-size: 15px;
+}
+
+#scoreDisplay{
+    margin: 0;
 }
 
 /*BUTTONS*/
 .btn-container{
-    /*POSITIONING*/
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%,-50%);
+    z-index: 2;
     text-align: center;
 }
 
 .btn{
     /*STYLING*/
     padding: 5px;
-    font-size: 30px;
+    font-size: 20px;
     text-align: center;
     color: #a8a8a8;
     font-weight: bolder;
-    border: 2px solid #a8a8a8;
+    border: 1px solid #a8a8a8;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s;
