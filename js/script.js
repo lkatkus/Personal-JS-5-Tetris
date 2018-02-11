@@ -111,9 +111,7 @@ function init(){
 
         activeShape.push(new addShape(blockSize*5,0));
         animate();
-
-        console.log(finishedShapes);
-    }
+    };
 
     // CHECK IF ANY LINE IS FULL
     function checkFinishedLine(){
@@ -161,7 +159,7 @@ function init(){
                 scoreMultiply = 1; /* RESETING MULTIPLY */
             }
         }
-    }
+    };
 
     // SHAPE OBJECT
     function addShape(x,y,rotation){
@@ -188,7 +186,7 @@ function init(){
 
             block = ctx.getImageData(0, 0, blockSize, blockSize);
             void ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        };
 
         // DRAW SINGLE BLOCK
         drawBlock(shapeColor);
@@ -328,7 +326,7 @@ function init(){
                         moveLeft = true;
                     };
                 };
-            }
+            };
 
             // CHECK CONTAINER RIGHT
             if(moveBottom){
@@ -340,7 +338,7 @@ function init(){
                         moveRight = true;
                     };
                 };
-            }
+            };
 
             // CHECK BOTTOM
             if(moveBottom && finishedShapes.length > 0){
@@ -382,7 +380,7 @@ function init(){
             for(let i = 0; i < finishedShapes.length; i++){
                 ctx.putImageData(block,finishedShapes[i].x, finishedShapes[i].y);
                 /* ADD FUNCTION FOR REDRAWING SHAPES WITH SAVED COLORS */
-            }
+            };
 
             // MOVEMENT
             if(moveBottom){
